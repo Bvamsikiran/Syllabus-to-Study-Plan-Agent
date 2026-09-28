@@ -1,0 +1,6 @@
+{
+  "name": "Synapse AI - Syllabus to Study Plan",
+  "description": "AI-powered study planning web app that turns any syllabus into an adaptive study schedule with spaced repetition, voice recall quizzes, and handwritten answer analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
