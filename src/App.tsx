@@ -16,8 +16,11 @@ import { Step4Resources } from './components/Step4Resources';
 import { StudyDashboard } from './components/StudyDashboard';
 import { VoiceRecallQuiz } from './components/VoiceRecallQuiz';
 import { HandwrittenAnalysis } from './components/HandwrittenAnalysis';
+import { GoogleAuthProviderComponent, useGoogleAuth } from './context/GoogleAuthContext';
+import { GoogleDriveModal } from './components/GoogleDriveModal';
+import { GmailSyncModal } from './components/GmailSyncModal';
 
-export default function App() {
+function AppContent() {
   // Sync screen with URL hash if present
   const getInitialScreen = (): ScreenId => {
     const hash = window.location.hash.replace('#', '') as ScreenId;
@@ -69,6 +72,9 @@ export default function App() {
   // Active course modules
   const [modules, setModules] = useState<SyllabusModule[]>(INITIAL_MODULES);
 
+  // Google Workspace modals
+  const { driveModalOpen, setDriveModalOpen, gmailModalOpen, setGmailModalOpen } = useGoogleAuth();
+
   // Navigate helper
   const navigateTo = (screen: ScreenId) => {
     setCurrentScreen(screen);
@@ -115,6 +121,47 @@ export default function App() {
         progress: idx === 0 ? 100 : idx === 1 ? 100 : idx === 2 ? 60 : 0,
       }));
       setModules(converted);
+    }
+  };
+
+  const handleImportSyllabusFromDrive = async (fileName: string, text: string) => {
+    setSelectedFile(fileName);
+    setSyllabusText(text);
+    navigateTo('step1-upload');
+
+    // Trigger AI parsing for imported Drive text
+    try {
+      const res = await fetch('/api/analyze-syllabus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, fileName }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        handleSyllabusParsed(data);
+      }
+    } catch (e) {
+      console.warn('Auto parsing error on Drive import:', e);
+    }
+  };
+
+  const handleImportSyllabusFromEmail = async (subject: string, text: string) => {
+    setSelectedFile(`Gmail: ${subject}`);
+    setSyllabusText(text);
+    navigateTo('step1-upload');
+
+    try {
+      const res = await fetch('/api/analyze-syllabus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, fileName: subject }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        handleSyllabusParsed(data);
+      }
+    } catch (e) {
+      console.warn('Auto parsing error on Gmail import:', e);
     }
   };
 
@@ -169,6 +216,34 @@ export default function App() {
 
         {currentScreen === 'handwritten-analysis' && <HandwrittenAnalysis onNavigate={navigateTo} />}
       </div>
+
+      {/* Google Drive Workspace Modal */}
+      <GoogleDriveModal
+        isOpen={driveModalOpen}
+        onClose={() => setDriveModalOpen(false)}
+        onImportSyllabusContent={handleImportSyllabusFromDrive}
+        currentModules={modules}
+        targetDate={targetDate}
+        targetScore={targetScore}
+      />
+
+      {/* Gmail Study Digest & Sync Modal */}
+      <GmailSyncModal
+        isOpen={gmailModalOpen}
+        onClose={() => setGmailModalOpen(false)}
+        onImportFromEmail={handleImportSyllabusFromEmail}
+        currentModules={modules}
+        targetDate={targetDate}
+        targetScore={targetScore}
+      />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <GoogleAuthProviderComponent>
+      <AppContent />
+    </GoogleAuthProviderComponent>
   );
 }

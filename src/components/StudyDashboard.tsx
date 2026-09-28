@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScreenId, SyllabusModule } from '../types';
+import { useGoogleAuth } from '../context/GoogleAuthContext';
+import { HardDrive, Mail } from 'lucide-react';
 
 interface StudyDashboardProps {
   onNavigate: (screen: ScreenId) => void;
@@ -8,6 +10,7 @@ interface StudyDashboardProps {
 }
 
 export const StudyDashboard: React.FC<StudyDashboardProps> = ({ onNavigate, modules, setModules }) => {
+  const { setDriveModalOpen, setGmailModalOpen } = useGoogleAuth();
   const [syllabusFilter, setSyllabusFilter] = useState<'all' | 'high-yield' | 'review'>('all');
   const [timelineFilter, setTimelineFilter] = useState<string>('all');
   const [showAddUnitModal, setShowAddUnitModal] = useState(false);
@@ -139,6 +142,24 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({ onNavigate, modu
             <span className="text-on-surface-variant">Today's Goal:</span>
             <span className="text-primary font-mono font-medium">3.5h / 4.0h</span>
           </div>
+
+          <button
+            onClick={() => setDriveModalOpen(true)}
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer"
+            title="Export syllabus plan to Google Drive"
+          >
+            <HardDrive className="w-3.5 h-3.5" />
+            <span>Drive</span>
+          </button>
+
+          <button
+            onClick={() => setGmailModalOpen(true)}
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 text-xs font-medium text-sky-400 hover:bg-sky-500/20 transition cursor-pointer"
+            title="Email study digest via Gmail"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>Gmail</span>
+          </button>
 
           <button
             onClick={() => onNavigate('master-schedule')}

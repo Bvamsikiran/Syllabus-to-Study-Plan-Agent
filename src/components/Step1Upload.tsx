@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScreenId } from '../types';
+import { useGoogleAuth } from '../context/GoogleAuthContext';
 
 interface Step1UploadProps {
   onNavigate: (screen: ScreenId) => void;
@@ -18,6 +19,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
   setSelectedFile,
   onSyllabusParsed,
 }) => {
+  const { setDriveModalOpen, setGmailModalOpen } = useGoogleAuth();
   const [isParsing, setIsParsing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [targetCourse, setTargetCourse] = useState('mcat');
@@ -311,13 +313,37 @@ Official Practice Sim: Nov 20 (Weight: 45%)`);
                 </span>
                 <span className="font-mono text-[11px] text-outline ml-1">(up to 50MB)</span>
               </div>
-              <button
-                type="button"
-                className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-label font-semibold border border-outline-variant shadow-sm transition-all duration-150 active:scale-[0.98]"
-              >
-                <span className="material-symbols-outlined text-sm text-primary">folder_open</span>
-                <span>Select Files</span>
-              </button>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-label font-semibold border border-outline-variant shadow-sm transition-all duration-150 active:scale-[0.98]"
+                >
+                  <span className="material-symbols-outlined text-sm text-primary">folder_open</span>
+                  <span>Select Files</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDriveModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-label font-semibold border border-emerald-500/30 shadow-sm transition-all duration-150 active:scale-[0.98]"
+                >
+                  <span className="material-symbols-outlined text-sm">cloud</span>
+                  <span>Browse Google Drive</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setGmailModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-label font-semibold border border-sky-500/30 shadow-sm transition-all duration-150 active:scale-[0.98]"
+                >
+                  <span className="material-symbols-outlined text-sm">mail</span>
+                  <span>Import from Gmail</span>
+                </button>
+              </div>
             </div>
 
             {/* Smart Extraction Capabilities Pill Card */}

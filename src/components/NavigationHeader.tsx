@@ -1,5 +1,8 @@
 import React from 'react';
 import { ScreenId } from '../types';
+import { GoogleAuthButton } from './GoogleAuthButton';
+import { useGoogleAuth } from '../context/GoogleAuthContext';
+import { HardDrive, Mail } from 'lucide-react';
 
 interface NavigationHeaderProps {
   currentScreen: ScreenId;
@@ -8,6 +11,7 @@ interface NavigationHeaderProps {
 
 export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ currentScreen, onNavigate }) => {
   const [collapsed, setCollapsed] = React.useState(false);
+  const { setDriveModalOpen, setGmailModalOpen, user } = useGoogleAuth();
 
   const screens: { id: ScreenId; label: string; tag: string }[] = [
     { id: 'landing', label: 'Landing Page', tag: 'Overview' },
@@ -23,7 +27,8 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ currentScree
 
   if (collapsed) {
     return (
-      <div className="fixed top-2 right-2 z-50">
+      <div className="fixed top-2 right-2 z-50 flex items-center gap-2">
+        <GoogleAuthButton />
         <button
           onClick={() => setCollapsed(false)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-highest/95 border border-primary/40 text-primary text-xs font-mono shadow-2xl backdrop-blur-md hover:bg-surface-container hover:border-primary transition-all"
@@ -41,7 +46,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ currentScree
       <div className="flex items-center gap-2 overflow-x-auto py-0.5 no-scrollbar">
         <span className="text-secondary text-[11px] font-semibold flex items-center gap-1 shrink-0 pl-1">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          NAVIGATE SCREENS:
+          SCREENS:
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
           {screens.map((screen) => {
@@ -69,7 +74,29 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ currentScree
           })}
         </div>
       </div>
-      <div className="flex items-center gap-2 pl-2 shrink-0">
+      <div className="flex items-center gap-2 pl-3 shrink-0">
+        {/* Quick Google Workspace Action Icons */}
+        <button
+          onClick={() => setDriveModalOpen(true)}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all font-sans text-xs font-medium"
+          title="Google Drive Files & Export"
+        >
+          <HardDrive className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Drive</span>
+        </button>
+
+        <button
+          onClick={() => setGmailModalOpen(true)}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 transition-all font-sans text-xs font-medium"
+          title="Gmail Study Digest & Sync"
+        >
+          <Mail className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Gmail</span>
+        </button>
+
+        {/* Google Sign In / Profile Button */}
+        <GoogleAuthButton />
+
         <button
           onClick={() => setCollapsed(true)}
           className="text-secondary hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors"
@@ -81,3 +108,4 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ currentScree
     </div>
   );
 };
+
